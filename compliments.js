@@ -6,14 +6,12 @@
  * By Michael Teeuw http://michaelteeuw.nl
  * MIT Licensed.
  */
-Module.register("compliments", {
+
+Module.register("compliments",{
 
 	// Module config defaults.
 	defaults: {
 		compliments: {
-			anytime: [
-				"Hey there sexy!"
-			],
 			morning: [
 				"Good morning, handsome!",
 				"Enjoy your day!",
@@ -27,7 +25,8 @@ Module.register("compliments", {
 			evening: [
 				"Wow, you look hot!",
 				"You look nice!",
-				"Hi, sexy!"
+				"Hi, sexy!",
+				"Hi, Johnny Boy"
 			]
 		},
 		updateInterval: 30000,
@@ -42,9 +41,10 @@ Module.register("compliments", {
 	getScripts: function() {
 		return ["moment.js"];
 	},
+	
 	getStyles: function() {
-           return ["compliments.css"];
-       },
+         return ["compliments.css"];
+     },
 
 	// Define start sequence.
 	start: function() {
@@ -99,7 +99,7 @@ Module.register("compliments", {
 	 */
 	complimentArray: function() {
 		var hour = moment().hour();
-		var compliments = null;
+		var compliments  = null;
 
 		if (hour >= 3 && hour < 12) {
 			compliments = this.config.compliments.morning;
@@ -109,16 +109,9 @@ Module.register("compliments", {
 			compliments = this.config.compliments.evening;
 		}
 
-		if (typeof compliments === "undefined") {
-			compliments = new Array();
-		}
-
-		if (this.currentWeatherType in this.config.compliments) {
+		if ( this.currentWeatherType in this.config.compliments) {
 			compliments.push.apply(compliments, this.config.compliments[this.currentWeatherType]);
 		}
-
-		compliments.push.apply(compliments, this.config.compliments.anytime);
-
 		return compliments;
 
 	},
@@ -130,7 +123,7 @@ Module.register("compliments", {
 		var xobj = new XMLHttpRequest();
 		xobj.overrideMimeType("application/json");
 		xobj.open("GET", this.file(this.config.remoteFile), true);
-		xobj.onreadystatechange = function() {
+		xobj.onreadystatechange = function () {
 			if (xobj.readyState == 4 && xobj.status == "200") {
 				callback(xobj.responseText);
 			}
@@ -153,10 +146,20 @@ Module.register("compliments", {
 	// Override dom generator.
 	getDom: function() {
 		var complimentText = this.randomCompliment();
-
-		var compliment = document.createTextNode(complimentText);
-		var wrapper = document.createElement("div");
-		wrapper.className = this.config.classes ? this.config.classes : "thin xlarge bright morning afternoon evening";
+		var hour = moment().hour();
+		if (hour >= 3 && hour < 12) {
+			var compliment = document.createTextNode(complimentText);
+		    var wrapper = document.createElement("div");
+			wrapper.classList.add("morning", "thin", "xlarge", "bright");
+		} else if (hour >= 12 && hour < 17) {
+			var compliment = document.createTextNode(complimentText);
+		    var wrapper = document.createElement("div");
+			wrapper.classList.add("afternoon", "thin", "xlarge", "bright");
+		} else {
+			var compliment = document.createTextNode(complimentText);
+		    var wrapper = document.createElement("div");
+			wrapper.classList.add("evening", "thin", "xlarge", "bright");
+		}
 		wrapper.appendChild(compliment);
 
 		return wrapper;
